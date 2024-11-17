@@ -27,29 +27,30 @@ test_gen = test_data.flow_from_directory(test, target_size = IMGsize, batch_size
 
 ## Step 2
 import tensorflow as tf
-from tensorflow.keras import models, regularizers
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, BatchNormalization
+from tensorflow.keras import regularizers
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 
 # Convolutional Layer & MaxPooling
 model = tf.keras.Sequential([
-    Conv2D(64, (3,3), activation = 'relu', input_shape=(500,500,3)),
+    Conv2D(32, (3,3), (1,1), activation = 'relu', input_shape=(500,500,3)),
     MaxPooling2D(pool_size=(2,2)),
-    BatchNormalization(),
     
-    Conv2D(128, (3,3), activation = 'relu'),
+    Conv2D(64, (3,3), (1,1), activation = 'relu'),
     MaxPooling2D(pool_size=(2,2)),
-    BatchNormalization(),
-    
-    Conv2D(256, (3,3), activation = 'relu'),
+   
+    Conv2D(128, (3,3), (1,1), activation = 'relu'),
     MaxPooling2D(pool_size=(2,2)),
-    BatchNormalization(),
-    
+ 
+    Conv2D(256, (3,3), (1,1), activation = 'relu'),
+    MaxPooling2D(pool_size=(2,2)),
+ 
     #flatten
     Flatten(),
-    
+     
     # Dense and Dropout
-    Dense(16, activation = 'relu', kernel_regularizer=regularizers.l2(0.01)),
-    Dropout(0.3),
+    Dense(128, activation = 'relu', kernel_regularizer=regularizers.l2(0.02)),
+    Dense(64, activation = 'relu', kernel_regularizer=regularizers.l2(0.01)),
+    Dropout(0.6),
     Dense(3, activation='softmax')
     ])
 
@@ -61,10 +62,9 @@ model.summary()
 
 ## Step 4
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-earlystop = EarlyStopping(monitor = 'val_loss', patience=3, restore_best_weights=True)
-checkpoint = ModelCheckpoint('best_model_v11.keras', monitor='val_loss', save_best_only=True)
-history = model.fit(train_gen, validation_data=validation_gen, epochs=20, verbose=1, callbacks=[checkpoint, earlystop])
-
+earlystop = EarlyStopping(monitor = 'val_loss', patience=5, restore_best_weights=True)
+checkpoint = ModelCheckpoint('best_model_v3.keras', monitor='val_loss', save_best_only=True)
+history = model.fit(train_gen, validation_data=validation_gen, epochs=50, batch_size= batch, callbacks=[checkpoint, earlystop])
 
 import matplotlib.pyplot as plt
 
@@ -75,6 +75,8 @@ plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
 plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.title('Training and Validation Accuracy')
+plt.legend()
+plt.grid()
 
 plt.subplot(1,2,2)
 plt.plot(history.history['loss'], label='Training Loss')
@@ -82,5 +84,7 @@ plt.plot(history.history['val_loss'], label='Validation Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.title('Training and Validation Loss')
+plt.legend()
+plt.grid()
 
 plt.show()

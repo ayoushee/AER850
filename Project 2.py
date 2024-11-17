@@ -5,7 +5,7 @@ print(tf.__version__)
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 IMGsize = (500, 500)
-batch = 64
+batch = 32
 
 train = './Project 2 Data/Data/train'
 validation = './Project 2 Data/Data/valid'
@@ -48,7 +48,11 @@ model.compile(optimizer= 'adam', loss= 'categorical_crossentropy', metrics=['acc
 model.summary()
 
 ## Step 4
-history = model.fit(train_gen, validation_data=validation_gen, epochs=20, verbose=1)
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+earlystop = EarlyStopping(monitor = 'val_loss', patience=2, restore_best_weights=True)
+checkpoint = ModelCheckpoint('best_model_v1.keras', monitor='val_loss', save_best_only=True)
+history = model.fit(train_gen, validation_data=validation_gen, epochs=50, batch_size= batch, callbacks=[checkpoint, earlystop])
+
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(14,5))

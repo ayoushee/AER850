@@ -43,13 +43,15 @@ model = tf.keras.Sequential([
     Conv2D(256, (3,3), activation = 'relu'),
     MaxPooling2D(pool_size=(2,2)),
     BatchNormalization(),
-    
+        
     #flatten
     Flatten(),
     
     # Dense and Dropout
-    Dense(16, activation = 'relu', kernel_regularizer=regularizers.l2(0.01)),
-    Dropout(0.3),
+    Dense(64, activation = 'relu', kernel_regularizer=regularizers.l2(0.01)),
+    Dropout(0.5),
+    Dense(32, activation = 'relu', kernel_regularizer=regularizers.l2(0.01)),
+    Dropout(0.5),
     Dense(3, activation='softmax')
     ])
 
@@ -61,10 +63,12 @@ model.summary()
 
 ## Step 4
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-earlystop = EarlyStopping(monitor = 'val_loss', patience=3, restore_best_weights=True)
-checkpoint = ModelCheckpoint('best_model_v11.keras', monitor='val_loss', save_best_only=True)
+earlystop = EarlyStopping(monitor = 'val_loss', patience=2, restore_best_weights=True)
+checkpoint = ModelCheckpoint('best_model.keras', monitor='val_loss', save_best_only=True)
 history = model.fit(train_gen, validation_data=validation_gen, epochs=20, verbose=1, callbacks=[checkpoint, earlystop])
 
+test_loss, test_accuracy = model.evaluate(test_gen)
+print(f"Test Accuracy: {test_accuracy:.4f}")
 
 import matplotlib.pyplot as plt
 
